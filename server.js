@@ -14,6 +14,9 @@ const app = express();
 /* =========================
    MIDDLEWARE
 ========================= */
+mongoose.connect(process.env.MONGO_URL)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.log(err));
 
 app.use(cors());
 app.use(express.json());
@@ -34,21 +37,7 @@ if (!fs.existsSync("uploads")) {
    MONGODB CONNECTION
 ========================= */
 
-mongoose.connect(
-    process.env.MONGO_URL || "mongodb://127.0.0.1:27017/makeFriendsDB"
-)
 
-.then(() => {
-    console.log("MongoDB Connected ✅");
-})
-
-.catch((err) => {
-    console.log(err);
-});
-
-/* =========================
-   MULTER STORAGE
-========================= */
 
 const storage = multer.diskStorage({
 
