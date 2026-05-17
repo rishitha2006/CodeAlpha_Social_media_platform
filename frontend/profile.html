@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Make Friends</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:system-ui, Arial;
+}
+
+body{
+    background:#eef2f3;
+}
+
+nav{
+    background:#4aa786;
+    color:white;
+    padding:15px 20px;
+    font-size:20px;
+    font-weight:600;
+    position:sticky;
+    top:0;
+    z-index:100;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logout-btn{
+    background:#d11a2a;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+}
+
+.main{
+    width:100%;
+    max-width:950px;
+    padding:15px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+/* PROFILE */
+
+.profile{
+    background:white;
+    padding:25px;
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.profile img{
+    width:150px;
+    height:150px;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid #4aa786;
+    cursor:pointer;
+}
+
+.profile h2{
+    margin-top:12px;
+}
+
+.profile p{
+    color:#666;
+    margin-top:5px;
+}
+
+.follow-box{
+    display:flex;
+    justify-content:space-around;
+    margin-top:18px;
+    background:#f7f7f7;
+    padding:12px;
+    border-radius:12px;
+}
+
+.follow-card{
+    text-align:center;
+}
+
+.follow-card b{
+    display:block;
+    font-size:18px;
+}
+
+.follow-card span{
+    color:#666;
+}
+
+/* CREATE POST */
+
+.create-post{
+    background:white;
+    border-radius:15px;
+    padding:18px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.create-post textarea{
+    width:100%;
+    height:100px;
+    resize:none;
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:14px;
+    outline:none;
+    font-size:15px;
+}
+
+.post-tools{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:12px;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.file-btn{
+    background:#f1f1f1;
+    padding:10px 15px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.file-btn input{
+    display:none;
+}
+
+.post-btn{
+    background:#4aa786;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.preview{
+    margin-top:14px;
+}
+
+.preview img,
+.preview video{
+    width:100%;
+    max-height:350px;
+    border-radius:12px;
+    object-fit:cover;
+}
+
+/* POSTS */
+
+.feed{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.post{
+    background:white;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.post-head{
+    padding:15px;
+}
+
+.post-head h4{
+    color:#222;
+}
+
+.post-head span{
+    font-size:12px;
+    color:#777;
+}
+
+.post-text{
+    padding:0 15px 15px;
+    color:#333;
+}
+
+.post img,
+.post video{
+    width:100%;
+    max-height:450px;
+    object-fit:cover;
+}
+
+.actions{
+    display:flex;
+    justify-content:space-around;
+    padding:12px;
+    border-top:1px solid #eee;
+}
+
+.action-btn{
+    border:none;
+    background:none;
+    cursor:pointer;
+    font-size:15px;
+}
+
+.delete-btn{
+    color:#d11a2a;
+    font-weight:600;
+}
+
+@media(max-width:768px){
+
+    .profile img{
+        width:120px;
+        height:120px;
+    }
+
+    .post-tools{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .post-btn{
+        width:100%;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<nav>
+    <span>Make Friends</span>
+
+    <button class="logout-btn" onclick="logout()">
+        Logout
+    </button>
+</nav>
+
+<div class="container">
+
+<div class="main">
+
+    <!-- PROFILE -->
+
+    <div class="profile">
+
+        <img
+            id="profilePic"
+            src="images/default-profile.png"
+            alt="Profile"
+        >
+
+        <input
+            type="file"
+            id="profileInput"
+            accept="image/*"
+            hidden
+        >
+
+        <h2 id="profileName">Loading...</h2>
+
+       
+
+        <div class="follow-box">
+
+            <div class="follow-card">
+                <b id="post-counter">0</b>
+                <span>Posts</span>
+            </div>
+
+           <div class="follow-card" onclick="openFollowers()" style="cursor:pointer;">
+    <b id="followers">0</b>
+    <span>Followers</span>
+</div>
+
+<div class="follow-card" onclick="openFollowing()" style="cursor:pointer;">
+    <b id="following">0</b>
+    <span>Following</span>
+</div>
+
+        </div>
+
+    </div>
+
+    <!-- CREATE POST -->
+
+    <div class="create-post">
+
+        <h3>Create Post</h3>
+
+        <textarea
+            id="caption"
+            placeholder="What's on your mind?"
+        ></textarea>
+
+        <div class="post-tools">
+
+            <label class="file-btn">
+
+                📁 Add Photo / Video
+
+                <input
+                    type="file"
+                    id="fileInput"
+                    accept="image/*,video/*"
+                >
+
+            </label>
+
+            <button
+                class="post-btn"
+                onclick="createPost()"
+            >
+                Create Post
+            </button>
+
+        </div>
+
+        <div class="preview" id="preview"></div>
+
+    </div>
+
+    <!-- FEED -->
+
+    <div class="feed" id="feed"></div>
+
+</div>
+</div>
+
+<script>
+
+const BACKEND_URL = "http://localhost:8080";
+
+const currentUser =
+JSON.parse(localStorage.getItem("user"));
+
+if(!currentUser){
+
+    window.location.href = "/login";
+
+}
+
+document.getElementById("profileName").innerText =
+currentUser.name;
+
+document.getElementById("followers").innerText =
+currentUser.followers
+? currentUser.followers.length
+: 0;
+
+document.getElementById("following").innerText =
+currentUser.following
+? currentUser.following.length
+: 0;
+
+if(currentUser.profilePic){
+
+    document.getElementById("profilePic").src =
+    BACKEND_URL + currentUser.profilePic;
+
+}
+
+/* =========================
+   PROFILE PIC
+========================= */
+
+const profilePic =
+document.getElementById("profilePic");
+
+const profileInput =
+document.getElementById("profileInput");
+
+profilePic.onclick = () => {
+
+    profileInput.click();
+
+};
+
+profileInput.addEventListener(
+
+    "change",
+
+    async function(){
+
+        const file = this.files[0];
+
+        if(!file) return;
+
+        const formData = new FormData();
+
+        formData.append(
+            "profilePic",
+            file
+        );
+
+        formData.append(
+            "userId",
+            currentUser._id
+        );
+
+        try{
+
+            const response = await fetch(
+
+                `${BACKEND_URL}/upload-profile-pic`,
+
+                {
+                    method:"POST",
+                    body:formData
+                }
+
+            );
+
+            const data =
+            await response.json();
+
+            if(data.success){
+
+                profilePic.src =
+                BACKEND_URL + data.profilePic;
+
+                currentUser.profilePic =
+                data.profilePic;
+
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(currentUser)
+                );
+
+            }
+
+        }
+
+        catch(err){
+
+            console.log(err);
+
+        }
+
+    }
+
+);
+
+/* =========================
+   POST MEDIA PREVIEW
+========================= */
+
+let uploadedFile = null;
+
+document.getElementById("fileInput")
+
+.addEventListener("change", function(e){
+
+    uploadedFile = e.target.files[0];
+
+    const preview =
+    document.getElementById("preview");
+
+    preview.innerHTML = "";
+
+    if(!uploadedFile) return;
+
+    const url =
+    URL.createObjectURL(uploadedFile);
+
+    if(uploadedFile.type.startsWith("image")){
+
+        preview.innerHTML =
+        `<img src="${url}">`;
+
+    }
+
+    else{
+
+        preview.innerHTML =
+        `
+        <video controls>
+            <source src="${url}">
+        </video>
+        `;
+
+    }
+
+});
+
+/* =========================
+   LOAD POSTS
+========================= */
+
+window.onload = loadPosts;
+
+async function loadPosts(){
+
+    try{
+
+        const response =
+        await fetch(`${BACKEND_URL}/posts`);
+
+        const posts =
+        await response.json();
+
+        const feed =
+        document.getElementById("feed");
+
+        feed.innerHTML = "";
+
+        document.getElementById(
+            "post-counter"
+        ).innerText = posts.filter(
+
+            p => p.userId === currentUser._id
+
+        ).length;
+
+       posts
+.filter(post => post.userId === currentUser._id)
+.forEach(post => renderPost(post));
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+/* =========================
+   CREATE POST
+========================= */
+
+async function createPost(){
+
+    const caption =
+    document.getElementById("caption").value;
+
+    if(
+        caption.trim() === "" &&
+        !uploadedFile
+    ){
+
+        alert("Add text or media");
+
+        return;
+
+    }
+
+    try{
+
+        const formData = new FormData();
+
+        formData.append(
+            "content",
+            caption
+        );
+
+        formData.append(
+            "userId",
+            currentUser._id
+        );
+
+        formData.append(
+            "username",
+            currentUser.username
+        );
+
+        if(uploadedFile){
+
+            formData.append(
+                "media",
+                uploadedFile
+            );
+
+        }
+
+        const response = await fetch(
+
+            `${BACKEND_URL}/create-post`,
+
+            {
+                method:"POST",
+                body:formData
+            }
+
+        );
+
+        const data =
+        await response.json();
+
+        if(response.ok){
+
+            document.getElementById(
+                "caption"
+            ).value = "";
+
+            document.getElementById(
+                "preview"
+            ).innerHTML = "";
+
+            document.getElementById(
+                "fileInput"
+            ).value = "";
+
+            uploadedFile = null;
+
+            loadPosts();
+
+        }
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+        alert("Post failed");
+
+    }
+
+}
+
+/* =========================
+   RENDER POST
+========================= */
+function renderPost(post){
+
+    const feed =
+    document.getElementById("feed");
+
+    let mediaHTML = "";
+
+    if(post.media){
+
+        const mediaUrl =
+        `${BACKEND_URL}${post.media}`;
+
+        if(
+            post.mediaType &&
+            post.mediaType.startsWith("video")
+        ){
+
+            mediaHTML =
+
+            `
+            <video controls>
+                <source src="${mediaUrl}">
+            </video>
+            `;
+
+        }
+
+        else{
+
+            mediaHTML =
+            `<img src="${mediaUrl}">`;
+
+        }
+
+    }
+
+    let commentsHTML = "";
+
+    if(post.comments){
+
+        post.comments.forEach(comment => {
+
+            commentsHTML +=
+
+            `
+            <div style="padding:5px 0;">
+                <b>${comment.username}</b>
+                ${comment.text}
+            </div>
+            `;
+
+        });
+
+    }
+
+    const div =
+    document.createElement("div");
+
+    div.className = "post";
+
+    let deleteBtn = "";
+
+    if(post.userId === currentUser._id){
+
+        deleteBtn =
+
+        `
+        <button
+            class="action-btn delete-btn"
+            onclick="deletePost('${post._id}')"
+        >
+            🗑️ Delete
+        </button>
+        `;
+
+    }
+
+    div.innerHTML =
+
+    `
+    <div class="post-head">
+
+        <div style="display:flex;align-items:center;gap:10px;">
+
+            <img
+                src="${BACKEND_URL}${post.userProfilePic}"
+                style="
+                    width:45px;
+                    height:45px;
+                    border-radius:50%;
+                    object-fit:cover;
+                "
+            >
+
+            <div>
+
+                <h4>${post.username}</h4>
+
+                <span>
+                    ${new Date(post.createdAt).toLocaleString()}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="post-text">
+
+        ${post.content}
+
+    </div>
+
+    ${mediaHTML}
+
+    <div class="actions">
+
+        <button
+            class="action-btn"
+            onclick="likePost('${post._id}')"
+        >
+            ❤️
+            <span id="like-${post._id}">
+                ${post.likes.length}
+            </span>
+        </button>
+
+        ${deleteBtn}
+
+    </div>
+
+    <div style="padding:15px;">
+
+        <div id="comments-${post._id}">
+            ${commentsHTML}
+        </div>
+
+        <div
+            style="
+                display:flex;
+                gap:10px;
+                margin-top:10px;
+            "
+        >
+
+            <input
+                type="text"
+                id="comment-input-${post._id}"
+                placeholder="Write comment..."
+                style="
+                    flex:1;
+                    padding:10px;
+                    border-radius:10px;
+                    border:1px solid #ccc;
+                "
+            >
+
+            <button
+                onclick="addComment('${post._id}')"
+                style="
+                    padding:10px 15px;
+                    border:none;
+                    background:#4aa786;
+                    color:white;
+                    border-radius:10px;
+                    cursor:pointer;
+                "
+            >
+                Send
+            </button>
+
+        </div>
+
+    </div>
+    `;
+
+    feed.appendChild(div);
+
+}
+
+
+// like funtion 
+
+
+async function likePost(postId){
+
+    try{
+
+        const response = await fetch(
+
+            `${BACKEND_URL}/like-post/${postId}`,
+
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    userId: currentUser._id
+
+                })
+
+            }
+
+        );
+
+        const data =
+        await response.json();
+
+        document.getElementById(
+            `like-${postId}`
+        ).innerText = data.likes;
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+    }
+
+}
+async function openFollowing(){
+
+    const res = await fetch(`${BACKEND_URL}/following-users/${currentUser._id}`);
+    const data = await res.json();
+
+    showPopup("Following", data);
+}
+
+async function openFollowers(){
+
+    const res = await fetch(`${BACKEND_URL}/followers-users/${currentUser._id}`);
+    const data = await res.json();
+
+    showPopup("Followers", data);
+}
+
+function showPopup(title, list){
+
+    document.getElementById("popupTitle").innerText = title;
+
+    const box = document.getElementById("popupList");
+    box.innerHTML = "";
+
+    list.forEach(user => {
+
+        box.innerHTML += `
+            <div style="
+                padding:10px;
+                border-bottom:1px solid #eee;
+                cursor:pointer;
+            "
+            onclick="goProfile('${user._id}')">
+
+                <b>${user.name}</b><br>
+                <small>@${user.username}</small>
+
+            </div>
+        `;
+    });
+
+    document.getElementById("popup").style.display = "flex";
+}
+
+function closePopup(){
+    document.getElementById("popup").style.display = "none";
+}
+
+function goProfile(id){
+    window.location.href = `userProfile.html?id=${id}`;
+}
+
+
+// comment function  
+async function addComment(postId){
+
+    const input =
+    document.getElementById(
+        `comment-input-${postId}`
+    );
+
+    const text = input.value;
+
+    if(text.trim() === "") return;
+
+    try{
+
+        await fetch(
+
+            `${BACKEND_URL}/comment-post/${postId}`,
+
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    userId: currentUser._id,
+
+                    username: currentUser.username,
+
+                    text
+
+                })
+
+            }
+
+        );
+
+        input.value = "";
+
+        loadPosts();
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+    }
+
+}
+/* =========================
+   DELETE POST
+========================= */
+
+async function deletePost(postId){
+
+    if(!confirm("Delete post?")) return;
+
+    try{
+
+        const response = await fetch(
+
+            `${BACKEND_URL}/delete-post/${postId}`,
+
+            {
+                method:"DELETE"
+            }
+
+        );
+
+        if(response.ok){
+
+            loadPosts();
+
+        }
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+/* =========================
+   LOGOUT
+========================= */
+
+function logout(){
+
+    localStorage.clear();
+
+    window.location.href = "/login";
+
+}
+
+</script>
+<div id="popup" style="
+display:none;
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,0.5);
+justify-content:center;
+align-items:center;
+">
+
+    <div style="
+        background:white;
+        width:300px;
+        max-height:400px;
+        overflow:auto;
+        padding:20px;
+        border-radius:10px;
+    ">
+
+        <h3 id="popupTitle"></h3>
+
+        <div id="popupList"></div>
+
+        <button onclick="closePopup()" style="
+            margin-top:10px;
+            width:100%;
+            padding:8px;
+        ">Close</button>
+
+    </div>
+
+</div>
+</body>
+</html>

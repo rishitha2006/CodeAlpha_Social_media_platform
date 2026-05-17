@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Profile</title>
+
+<style>
+body{font-family:system-ui;background:#eef2f3;margin:0;}
+
+nav{
+    background:#4aa786;
+    padding:15px;
+    color:white;
+    font-size:20px;
+    font-weight:600;
+}
+
+.container{
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+}
+
+.profile{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.profile img{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.follow-btn{
+    background:#4aa786;
+    color:white;
+}
+
+.post{
+    background:white;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:15px;
+}
+</style>
+</head>
+
+<body>
+
+<nav>User Profile</nav>
+
+<div class="container">
+
+    <div class="profile">
+        <img id="pic" src="/images/default-profile.png">
+        <h2 id="name">Loading...</h2>
+        <p id="bio"></p>
+
+        <p>
+            Followers: <span id="followers">0</span> |
+            Following: <span id="following">0</span>
+        </p>
+
+        <button class="follow-btn" onclick="toggleFollow()" id="followBtn">
+            Follow
+        </button>
+    </div>
+
+    <div id="posts"></div>
+
+</div>
+<script>
+
+const BACKEND_URL = "http://localhost:8080";
+const currentUser = JSON.parse(localStorage.getItem("user"));
+
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("id");
+
+let isFollowing = false;
+
+/* LOAD USER */
+async function loadUser(){
+
+    const res = await fetch(`${BACKEND_URL}/user/${userId}`);
+    const data = await res.json();
+
+    const user = data.user;
+
+    document.getElementById("name").innerText = user.name;
+    document.getElementById("followers").innerText = user.followers.length;
+    document.getElementById("following").innerText = user.following.length;
+
+    if(user.profilePic){
+        document.getElementById("pic").src = BACKEND_URL + user.profilePic;
+    }
+
+    isFollowing = user.followers.some(
+        f => f.toString() === currentUser._id
+    );
+
+    document.getElementById("followBtn").innerText =
+        isFollowing ? "Unfollow" : "Follow";
+}
+
+/* LOAD POSTS WITH MEDIA FIX */
+async function loadPosts(){
+
+    const res = await fetch(`${BACKEND_URL}/user/${userId}`);
+    const data = await res.json();
+
+    const posts = data.posts;
+    const container = document.getElementById("posts");
+    container.innerHTML = "";
+
+    posts.forEach(p => {
+
+        let mediaHTML = "";
+
+        if(p.media){
+
+            const url = BACKEND_URL + p.media;
+
+            if(p.mediaType && p.mediaType.startsWith("video")){
+                mediaHTML = `
+                    <video controls style="width:100%;border-radius:10px;margin-top:10px;">
+                        <source src="${url}">
+                    </video>
+                `;
+            } else {
+                mediaHTML = `
+                    <img src="${url}" style="width:100%;border-radius:10px;margin-top:10px;">
+                `;
+            }
+        }
+
+        let commentsHTML = "";
+
+        if(p.comments && p.comments.length > 0){
+            p.comments.forEach(c => {
+                commentsHTML += `
+                    <div style="font-size:13px;margin-top:5px;">
+                        <b>${c.username}</b> : ${c.text}
+                    </div>
+                `;
+            });
+        }
+
+        container.innerHTML += `
+            <div class="post">
+
+                <p>${p.content}</p>
+
+                ${mediaHTML}
+
+                <!-- LIKE BUTTON -->
+                <div style="margin-top:10px;">
+                    <button onclick="likePost('${p._id}')">
+                        ❤️ Like (${p.likes.length})
+                    </button>
+                </div>
+
+                <!-- COMMENTS -->
+                <div style="margin-top:10px;">
+                    <div id="comment-box-${p._id}">
+                        ${commentsHTML}
+                    </div>
+
+                    <input 
+                        type="text" 
+                        id="input-${p._id}" 
+                        placeholder="Write comment..."
+                        style="width:70%;padding:5px;margin-top:5px;"
+                    >
+
+                    <button onclick="addComment('${p._id}')">
+                        Send
+                    </button>
+                </div>
+
+            </div>
+        `;
+    });
+}
+
+async function likePost(postId){
+
+    await fetch(`${BACKEND_URL}/like-post/${postId}`,{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            userId: currentUser._id
+        })
+    });
+
+    loadPosts();
+}
+
+async function addComment(postId){
+
+    const input = document.getElementById(`input-${postId}`);
+    const text = input.value;
+
+    if(text.trim() === "") return;
+
+    await fetch(`${BACKEND_URL}/comment-post/${postId}`,{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            userId: currentUser._id,
+            username: currentUser.username,
+            text
+        })
+    });
+
+    input.value = "";
+    loadPosts();
+}
+/* FOLLOW / UNFOLLOW */
+async function toggleFollow(){
+
+    await fetch(`${BACKEND_URL}/follow`,{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            currentUserId: currentUser._id,
+            targetUserId: userId
+        })
+    });
+
+    loadUser();
+}
+
+/* INIT */
+loadUser();
+loadPosts();
+
+</script>
+
+</body>
+</html>

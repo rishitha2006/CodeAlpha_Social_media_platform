@@ -1,0 +1,31 @@
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f0f2f5;
+}
+
+.container {
+  width: 90%;
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+  margin-top: 10px;
+}
+
+button {
+  padding: 10px;
+  margin: 10px;
+  width: 100%;
+}
+
+/* Mobile First */
+@media (min-width: 768px) {
+  .container {
+    width: 50%;
+  }
+}

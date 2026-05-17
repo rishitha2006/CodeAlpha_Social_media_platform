@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Posts</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:system-ui, Arial;
+}
+
+body{
+    background:#eef2f3;
+}
+
+nav{
+    background:#4aa786;
+    color:white;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:20px;
+    font-weight:600;
+}
+
+.logout-btn{
+    background:#d11a2a;
+    border:none;
+    color:white;
+    padding:8px 15px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.container{
+    display:flex;
+    justify-content:center;
+}
+
+.main{
+    width:100%;
+    max-width:900px;
+    padding:15px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.post{
+    background:white;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.post-head{
+    padding:15px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.post-head img{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.post-text{
+    padding:0 15px 15px;
+}
+
+.actions{
+    display:flex;
+    justify-content:space-between;
+    padding:12px 15px;
+    border-top:1px solid #eee;
+}
+
+.comment-box{
+    display:flex;
+    gap:10px;
+    padding:10px 15px;
+}
+
+.comment-box input{
+    flex:1;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
+
+.comment-box button{
+    padding:10px 15px;
+    background:#4aa786;
+    color:white;
+    border:none;
+    border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+    <span>All Posts</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</nav>
+
+<div class="container">
+<div class="main" id="feed"></div>
+</div>
+
+<script>
+
+const BACKEND_URL = "http://localhost:8080";
+const currentUser = JSON.parse(localStorage.getItem("user"));
+
+if(!currentUser){
+    window.location.href="/login";
+}
+
+window.onload = loadPosts;
+
+/* =========================
+   LOAD POSTS
+========================= */
+async function loadPosts(){
+
+    const res = await fetch(`${BACKEND_URL}/posts`);
+    const posts = await res.json();
+
+    const feed = document.getElementById("feed");
+    feed.innerHTML = "";
+
+    posts.forEach(post => renderPost(post));
+}
+
+/* =========================
+   RENDER POST
+========================= */
+function renderPost(post){
+
+    let mediaHTML = "";
+
+    if(post.media){
+
+        const url = BACKEND_URL + post.media;
+
+        if(post.mediaType?.startsWith("video")){
+            mediaHTML = `<video controls width="100%">
+                <source src="${url}">
+            </video>`;
+        }else{
+            mediaHTML = `<img src="${url}" width="100%">`;
+        }
+    }
+
+    const div = document.createElement("div");
+    div.className = "post";
+
+    div.innerHTML = `
+        <div class="post-head">
+
+            <img src="${post.userProfilePic ? BACKEND_URL + post.userProfilePic : '/images/default-profile.png'}">
+
+            <div>
+                <!-- 🔥 CLICKABLE USERNAME -->
+                <h4 
+                    style="cursor:pointer;color:#4aa786;"
+                    onclick="openProfile('${post.userId}')"
+                >
+                    ${post.username}
+                </h4>
+
+                <span>${new Date(post.createdAt).toLocaleString()}</span>
+            </div>
+
+        </div>
+
+        <div class="post-text">${post.content}</div>
+
+        ${mediaHTML}
+
+        <div class="actions">
+            <button onclick="likePost('${post._id}')">
+                ❤️ <span id="like-${post._id}">${post.likes.length}</span>
+            </button>
+        </div>
+
+        <div class="comment-box">
+            <input id="c-${post._id}" placeholder="Write comment...">
+            <button onclick="commentPost('${post._id}')">Send</button>
+        </div>
+    `;
+
+    feed.appendChild(div);
+}
+
+/* =========================
+   LIKE
+========================= */
+async function likePost(postId){
+
+    const res = await fetch(`${BACKEND_URL}/like-post/${postId}`,{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({ userId: currentUser._id })
+    });
+
+    const data = await res.json();
+
+    document.getElementById(`like-${postId}`).innerText = data.likes;
+}
+
+/* =========================
+   COMMENT
+========================= */
+async function commentPost(postId){
+
+    const input = document.getElementById(`c-${postId}`);
+    const text = input.value;
+
+    if(!text.trim()) return;
+
+    await fetch(`${BACKEND_URL}/comment-post/${postId}`,{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({
+            userId: currentUser._id,
+            username: currentUser.username,
+            text
+        })
+    });
+
+    loadPosts();
+}
+
+/* =========================
+   OPEN PROFILE PAGE (MAIN FIX)
+========================= */
+function openProfile(userId){
+
+    window.location.href = `/user-Profile.html?id=${userId}`;
+}
+
+/* =========================
+   LOGOUT
+========================= */
+function logout(){
+    localStorage.clear();
+    window.location.href="/login";
+}
+
+</script>
+
+</body>
+</html>
