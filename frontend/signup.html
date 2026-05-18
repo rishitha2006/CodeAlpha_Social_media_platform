@@ -129,56 +129,147 @@ button:hover{
 </div>
 
 <script>
+
 async function signup(){
 
-    const name = document.getElementById("name").value;
-    const username = document.getElementById("username").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const bio = document.getElementById("bio").value;
+    const name =
+    document.getElementById("name")
+    .value
+    .trim();
+
+    const username =
+    document.getElementById("username")
+    .value
+    .trim();
+
+    const email =
+    document.getElementById("email")
+    .value
+    .trim();
+
+    const password =
+    document.getElementById("password")
+    .value
+    .trim();
+
+    const bio =
+    document.getElementById("bio")
+    .value
+    .trim();
+
+    /* =========================
+       EMPTY FIELD CHECK
+    ========================= */
 
     if(!name || !username || !email || !password){
+
         alert("Fill all required fields");
+
         return;
     }
 
-    const res = await fetch("/signup", {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-            name,
-            username,
-            email,
-            password,
-            bio
-        })
-    });
+    /* =========================
+       GMAIL VALIDATION
+    ========================= */
 
-    const data = await res.json();
+    const emailPattern =
+    /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
 
-    if (data.token) {
+    if(!emailPattern.test(email)){
 
-    localStorage.setItem(
-        "token",
-        data.token
-    );
+        alert("Only Gmail addresses allowed");
 
-    localStorage.setItem(
-        "user",
-        JSON.stringify(data.user)
-    );
+        return;
+    }
 
-    alert("Login Successful ✅");
+    /* =========================
+       PASSWORD LENGTH
+    ========================= */
 
-    window.location.href = "/home";
+    if(password.length < 6){
 
-} else {
+        alert(
+            "Password must be at least 6 characters"
+        );
 
-    alert(data.message || "Signup failed");
+        return;
+    }
+
+    try{
+
+        const res = await fetch("/signup", {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                name,
+                username,
+                email,
+                password,
+                bio
+
+            })
+
+        });
+
+        const data =
+        await res.json();
+
+        /* =========================
+           SIGNUP SUCCESS
+        ========================= */
+
+        if(data.token){
+
+            localStorage.setItem(
+                "token",
+                data.token
+            );
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(data.user)
+            );
+
+            alert(
+                "Account created successfully ✅"
+            );
+
+            window.location.href = "/home";
+
+        }
+
+        /* =========================
+           SIGNUP FAILED
+        ========================= */
+
+        else{
+
+            alert(
+                data.message || "Signup failed"
+            );
+
+        }
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+        alert(
+            "Server error. Try again."
+        );
+
+    }
+
 }
-}
+
 </script>
 
 </body>
