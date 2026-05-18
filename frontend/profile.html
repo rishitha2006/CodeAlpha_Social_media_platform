@@ -350,7 +350,7 @@ nav{
 
 <script>
 
-const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL = "";
 
 const currentUser =
 JSON.parse(localStorage.getItem("user"));
@@ -423,7 +423,7 @@ profileInput.addEventListener(
 
             const response = await fetch(
 
-                `${BACKEND_URL}/upload-profile-pic`,
+                "/upload-profile-pic",
 
                 {
                     method:"POST",
@@ -515,7 +515,7 @@ async function loadPosts(){
     try{
 
         const response =
-        await fetch(`${BACKEND_URL}/posts`);
+        await fetch("/posts");
 
         const posts =
         await response.json();
@@ -597,7 +597,7 @@ async function createPost(){
 
         const response = await fetch(
 
-            `${BACKEND_URL}/create-post`,
+            "/create-post",
 
             {
                 method:"POST",
@@ -835,7 +835,7 @@ async function likePost(postId){
 
         const response = await fetch(
 
-            `${BACKEND_URL}/like-post/${postId}`,
+            `/like-post/${postId}`,
 
             {
                 method:"POST",
@@ -872,7 +872,7 @@ async function likePost(postId){
 }
 async function openFollowing(){
 
-    const res = await fetch(`${BACKEND_URL}/following-users/${currentUser._id}`);
+    const res = await fetch(`/following-users/${currentUser._id}`);
     const data = await res.json();
 
     showPopup("Following", data);
@@ -880,7 +880,7 @@ async function openFollowing(){
 
 async function openFollowers(){
 
-    const res = await fetch(`${BACKEND_URL}/followers-users/${currentUser._id}`);
+    const res = await fetch(`/followers-users/${currentUser._id}`);
     const data = await res.json();
 
     showPopup("Followers", data);
@@ -938,7 +938,7 @@ async function addComment(postId){
 
         await fetch(
 
-            `${BACKEND_URL}/comment-post/${postId}`,
+            `/comment-post/${postId}`,
 
             {
                 method:"POST",
@@ -986,7 +986,7 @@ async function deletePost(postId){
 
         const response = await fetch(
 
-            `${BACKEND_URL}/delete-post/${postId}`,
+            `/delete-post/${postId}`,
 
             {
                 method:"DELETE"

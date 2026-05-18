@@ -85,7 +85,7 @@ button{
 </div>
 <script>
 
-const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL = "";
 const currentUser = JSON.parse(localStorage.getItem("user"));
 
 const params = new URLSearchParams(window.location.search);
@@ -96,7 +96,7 @@ let isFollowing = false;
 /* LOAD USER */
 async function loadUser(){
 
-    const res = await fetch(`${BACKEND_URL}/user/${userId}`);
+    const res = await fetch(`/user/${userId}`);
     const data = await res.json();
 
     const user = data.user;
@@ -120,7 +120,7 @@ async function loadUser(){
 /* LOAD POSTS WITH MEDIA FIX */
 async function loadPosts(){
 
-    const res = await fetch(`${BACKEND_URL}/user/${userId}`);
+    const res = await fetch(`/user/${userId}`);
     const data = await res.json();
 
     const posts = data.posts;
@@ -199,7 +199,7 @@ async function loadPosts(){
 
 async function likePost(postId){
 
-    await fetch(`${BACKEND_URL}/like-post/${postId}`,{
+    await fetch(`/like-post/${postId}`,{
         method:"POST",
         headers:{
             "Content-Type":"application/json"
@@ -219,7 +219,7 @@ async function addComment(postId){
 
     if(text.trim() === "") return;
 
-    await fetch(`${BACKEND_URL}/comment-post/${postId}`,{
+    await fetch(`/comment-post/${postId}`,{
         method:"POST",
         headers:{
             "Content-Type":"application/json"
@@ -237,7 +237,7 @@ async function addComment(postId){
 /* FOLLOW / UNFOLLOW */
 async function toggleFollow(){
 
-    await fetch(`${BACKEND_URL}/follow`,{
+    await fetch(`/follow`,{
         method:"POST",
         headers:{
             "Content-Type":"application/json"
